@@ -4,6 +4,7 @@
 
 VERSION = '0.13'
 import sys, re, time, socket, serial, serial.tools.list_ports
+import os,configparser
 
 try:
 	# sudo apt-get install python3-pyqt5
@@ -27,6 +28,33 @@ except:
 # the fcntl module seems to not to exists on windows
 try: import fcntl
 except: fcntl = None
+
+import os.path
+
+class Config():
+	def __init__(self):
+		CONF_FILE=os.path.abspath(sys.argv[0]).replace('.py','.cfg')
+		self.config = configparser.ConfigParser()
+
+		self.config['DEFAULT'] = {
+			'conn_default': '',
+			'autoconnect': '0'
+		}
+
+		if os.path.isfile(CONF_FILE) : 
+			self.config.read(CONF_FILE)
+		else:
+			with open(CONF_FILE, 'w') as file:
+			  self.config.write(file)
+		self.parse()
+
+	def parse(self):
+		self.autoconnect = self.config.getboolean('DEFAULT', 'autoconnect')
+
+	def getParser(self):
+		return self.config
+
+conf = Config()
 
 class BoxWorker(QObject):
 	CLOSED = 0
@@ -1160,10 +1188,15 @@ class SerialPortPicker(QHBoxLayout):
 			self.serialDeviceCombo.insertItems(0, self.listSerialPorts())
 			nbEntries = self.serialDeviceCombo.count()
 			self.serialDeviceCombo.insertSeparator(nbEntries)
-			self.serialDeviceCombo.setCurrentIndex(nbEntries -1)
+			selection = 0 if nbEntries >0 else -1
+			self.serialDeviceCombo.setCurrentIndex(selection)
 
 		except Exception as e:
 			QMessageBox.warning(self.parentWidget, "Serial port error", str(e))
+
+		print(conf.autoconnect)
+		if(conf.autoconnect): 
+			self.openPortClicked()
 
 	def addPort(self, portName):
 		if portName not in [self.serialDeviceCombo.itemText(i) for i in range(self.serialDeviceCombo.count())]:
@@ -1173,6 +1206,7 @@ class SerialPortPicker(QHBoxLayout):
 	def openPortClicked(self):
 		try:
 			portName = self.serialDeviceCombo.currentText()
+			if portName == '': return
 			self.portOpenFunction(portName)
 
 			self.refreshBtn.setDisabled(True)
@@ -1221,6 +1255,7 @@ class UDP_ServerWorker(QObject):
 
 	def stop(self):
 		self.exitLoop = True
+
 
 def main():
 	app = QApplication(sys.argv)
