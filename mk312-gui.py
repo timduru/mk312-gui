@@ -1156,8 +1156,10 @@ class SerialPortPicker(QHBoxLayout):
 		try:
 			self.serialDeviceCombo.clear()
 			self.serialDeviceCombo.insertItems(0, self.listSerialPorts())
-			self.serialDeviceCombo.insertSeparator(self.serialDeviceCombo.count())
-			self.serialDeviceCombo.setCurrentIndex(-1)
+			nbEntries = self.serialDeviceCombo.count()
+			self.serialDeviceCombo.insertSeparator(nbEntries)
+			self.serialDeviceCombo.setCurrentIndex(nbEntries -1)
+
 		except Exception as e:
 			QMessageBox.warning(self.parentWidget, "Serial port error", str(e))
 
