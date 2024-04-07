@@ -270,6 +270,8 @@ class BoxWorker(QObject):
 					# ~ self.advancedParamsUpdated.emit()
 
 					self.errorCounter = 0
+					time.sleep(0.05)
+
 				except Exception as e:
 					self.errorCounter+=1
 					self.statusUpdated.emit(3, str(e))
