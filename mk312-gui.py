@@ -48,6 +48,7 @@ class BoxWorker(QObject):
 	             'multiadjust_min': 0x4086, 'multiadjust_max': 0x4087, 'psu_voltage': 0x4062,
 	             'battery_voltage': 0x4063, 'battery_voltage_boot': 0x4203, 'channel_a_level': 0x4064,
 	             'channel_b_level': 0x4065, 'power_level_range': 0x41f4,
+	             'ramp_start': 0x4070,
 	             'user_modes_loaded': {'addr': 0x41f3, 'offset': 0x87}, 'adc_disable': {'addr': 0x400f, 'bit': 0},
 	             'box_version':0x00fc, 'v1':0x00fd, 'v2':0x00fe, 'v3':0x00ff, 'com_cipher_key':0x4213,
 	             'current_mode': 0x407b, 'channel_a_split_mode': 0x41f5, 'channel_b_split_mode': 0x41f6, 'current_random_mode': 0x4074}
@@ -969,6 +970,9 @@ class GUI(QWidget):
 
 		self.potsOverrideBtn = mkButton("Override Pots", layout2, function=self.potsOverrideClicked, setCheckable=True)
 
+		def startRampBtnClicked(state):
+			boxWorker.setVal('ramp_start', 0x21)
+
 		def showRegistersBtnClicked(state):
 			if state:
 				self.registersView = RegistersView()
@@ -978,6 +982,8 @@ class GUI(QWidget):
 				self.registersView = None
 
 		self.showRegistersBtn = mkButton("Show Registers", layout2, function=showRegistersBtnClicked, setCheckable=True)
+		layout2.addStretch()
+		self.startRampBtn = mkButton("Start Ramp", layout2, function=startRampBtnClicked, setCheckable=False)
 		self.registersView = None
 
 		layout2.addStretch()
